@@ -1,5 +1,4 @@
-# Forked by Daniele Ongari (11 Oct 2018) 
-## to be used in AiiDA
+# Forked to be used in AiiDA
 
  * ionizationdata.dat \
 EA: experimental, [T.Andersen et al., 1999](http://aip.scitation.org/doi/10.1063/1.556047)\
