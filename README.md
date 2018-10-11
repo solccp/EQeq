@@ -1,4 +1,14 @@
-# Forked by Daniele Ongari ( 11 Oct 2018, to be used in AiiDA)
+# Forked by Daniele Ongari (11 Oct 2018) 
+## to be used in AiiDA
+
+ * ionizationdata.dat \
+EA: experimental, [T.Andersen et al., 1999](http://aip.scitation.org/doi/10.1063/1.556047)\
+IP: experimental, [C.E.Moore, 1970](https://nvlpubs.nist.gov/nistpubs/Legacy/NSRDS/nbsnsrds34.pdf)
+
+ * chargecenters.dat: common oxidation state (lowered if missing ionizationdata)
+ * Number of expansion cells: 2 (5x5x5)
+ * relative dielectric constant (eps_eff): 1.67
+
 
 EQeq
 ====
