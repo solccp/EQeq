@@ -1,29 +1,4 @@
-# DEPRECATED
-
-The EQeq charge equilibration algorithm is now included as a feature in the
-[openbabel](http://openbabel.org/wiki/Main_Page) project, enabling its use with
-over 100 chemical file formats across multiple programming languages. As such,
-this version of the algorithm is no longer in development - please switch to
-openbabel.
-
-To run EQeq from openbabel, use these sample code snippets as a starting point:
-
-```python
-# Python, `mol` is an instance of `pybel.Molecule`
-charges = mol.calccharges("eqeq")
-```
-
-```c++
-// C++, `inputMolecule` is an instance of `OBMol`
-OBChargeModel *eqeqCharges = OBChargeModel::FindType("eqeq");
-eqeqCharges->ComputeCharges(inputMolecule);
-vector<double> partialCharges = eqeqCharges->GetPartialCharges();
-```
-
-Other languages, file types, and charge models are also supported - read the
-openbabel docs for more.
-
-<br /><br /><br /><br /><br />
+# Forked by Daniele Ongari ( 11 Oct 2018, to be used in AiiDA)
 
 EQeq
 ====
