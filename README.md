@@ -1,5 +1,6 @@
 # Forked to be used in AiiDA
 
+### Default settings:
  * ionizationdata.dat \
 EA: experimental, [T.Andersen et al., 1999](http://aip.scitation.org/doi/10.1063/1.556047)\
 IP: experimental, [C.E.Moore, 1970](https://nvlpubs.nist.gov/nistpubs/Legacy/NSRDS/nbsnsrds34.pdf)
@@ -8,6 +9,7 @@ IP: experimental, [C.E.Moore, 1970](https://nvlpubs.nist.gov/nistpubs/Legacy/NSR
  * Number of expansion cells: 2 (5x5x5)
  * relative dielectric constant (eps_eff): 1.67
 
+### Look in the example folder for a run.sh script to run the program and specify the input settings. 
 
 EQeq
 ====
