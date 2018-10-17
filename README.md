@@ -11,12 +11,10 @@ Modified version, which allows to specify additional parameters:
  * `mR` (default: 2) Number of "expansion" unit cells to consider in periodic calculation ("real space"). 2 => 5x5x5
  * `mK` (default: 2) Number of "expansion" unit cells to consider in periodic calculation ("frequency space"). 2 => 5x5x5
  * `eta` (default: 50) Ewald splitting parameter
-
-### Default settings
- * [ionizationdata.dat](ionizationdata.dat)  
+ * `ionizationdata` (default: [ionizationdata.dat](ionizationdata.dat)) File with ionization potentials and electron affinities. Default data are  
    EA: experimental, [T.Andersen et al., 1999](http://aip.scitation.org/doi/10.1063/1.556047)  
    IP: experimental, [C.E.Moore, 1970](https://nvlpubs.nist.gov/nistpubs/Legacy/NSRDS/nbsnsrds34.pdf)
- * [chargecenters.dat](chargecenters.dat): common oxidation state (lowered, if missing ionizationdata)
+ * `chargecenters` (default: [chargecenters.dat](chargecenters.dat)) File with common oxidation states (lowered, if missing ionizationdata)
 
 ### Usage
 
