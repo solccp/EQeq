@@ -1,20 +1,32 @@
-# Forked to be used in AiiDA
-
-### Default settings:
- * ionizationdata.dat \
-EA: experimental, [T.Andersen et al., 1999](http://aip.scitation.org/doi/10.1063/1.556047)\
-IP: experimental, [C.E.Moore, 1970](https://nvlpubs.nist.gov/nistpubs/Legacy/NSRDS/nbsnsrds34.pdf)
-
- * chargecenters.dat: common oxidation state (lowered if missing ionizationdata)
- * Number of expansion cells: 2 (5x5x5)
- * relative dielectric constant (eps_eff): 1.67
-
-### Look in the example folder for a run.sh script to run the program and specify the input settings. 
-
-EQeq
-====
+# EQeq
 
 Charge equilibration method for crystal structures.
+
+Modified version, which allows to specify additional parameters:
+
+ * `lambda` (default: 1.2) The dielectric screening parameter. corresponds to eps_eff = 1.67
+ * `hI0` (default: -2.0) The electron affinity of hydrogen
+ * `chargePrecision` (default: 3) Number of digits to use for point charges
+ * `method` (default: "ewald", alternative: "nonperiodic") Method to compute the Coulombic interaction
+ * `mR` (default: 2) Number of "expansion" unit cells to consider in periodic calculation ("real space"). 2 => 5x5x5
+ * `mK` (default: 2) Number of "expansion" unit cells to consider in periodic calculation ("frequency space"). 2 => 5x5x5
+ * `eta` (default: 50) Ewald splitting parameter
+
+### Default settings
+ * [ionizationdata.dat](ionizationdata.dat)  
+   EA: experimental, [T.Andersen et al., 1999](http://aip.scitation.org/doi/10.1063/1.556047)  
+   IP: experimental, [C.E.Moore, 1970](https://nvlpubs.nist.gov/nistpubs/Legacy/NSRDS/nbsnsrds34.pdf)
+ * [chargecenters.dat](chargecenters.dat): common oxidation state (lowered, if missing ionizationdata)
+
+### Usage
+
+To run the HKUST-1 example:
+
+```bash
+cd examples/HKUST1
+./run.sh
+```
+
 ### Summary
 
 The source code in this program demonstrates the charge equilibration method described
