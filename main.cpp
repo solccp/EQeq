@@ -118,6 +118,8 @@ int mR = 2;  int mK = 2;
 int aVnum = mR; int bVnum = mR; int cVnum = mR; // Number of unit cells to consider in per. calc. ("real space")
 int hVnum = mK; int jVnum = mK; int kVnum = mK; // Number of unit cells to consider in per. calc. ("frequency space")
 string method = "ewald";
+string ionizationDataFilename = "ionizationdata.dat";
+string chargeCentersFilename = "chargecenters.dat";
 
 // Function to compile down to C. Used by the Python wrapper.
 extern "C" {
@@ -139,10 +141,13 @@ int main (int argc, char *argv[]) {
     if (argc > 6) mR = atoi(argv[6]);
     if (argc > 7) mK = atoi(argv[7]);
     if (argc > 8) eta = atof(argv[8]);
+    if (argc > 9) ionizationDataFilename = argv[9];
+    if (argc > 10) chargeCentersFilename = argv[10];
+    if (argc > 10) eta = atof(argv[8]);
 
     // The only mandatory parameter is the input file/stream parameter
     run(argv[1], (const char *)"files", lambda, hI0, chargePrecision, method.c_str(),
-        mR, mK, eta, (const char *)"ionizationdata.dat", (const char *)"chargecenters.dat");
+        mR, mK, eta, ionizationDataFilename.c_str(), chargeCentersFilename.c_str());
     return 0;
 }
 /*****************************************************************************/
