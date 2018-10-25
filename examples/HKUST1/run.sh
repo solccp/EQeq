@@ -10,8 +10,8 @@ mR=2                #(default: 2) Number of unit cells to consider in per. calc.
 mK=2                #(default: 2) Number of unit cells to consider in per. calc. ("frequency space")
 eta=50              #(default: 50) Ewald splitting parameter
 
-ionizationdata=../../ionizationdata.dat    #(default: ionizationdata.dat)
-chargecenters=../../chargecenters.dat      #(default: chargecenters.dat)
+ionizationdata=../../data/ionizationdata.dat    #(default: ionizationdata.dat)
+chargecenters=../../data/chargecenters.dat      #(default: chargecenters.dat)
 
  
 ../../eqeq HKUST1.cif $lambda $hI0 $chargePrecision $method $mR $mK $eta \

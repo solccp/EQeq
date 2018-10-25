@@ -6,7 +6,7 @@
  *          Patrick Fuller (streaming functionality)
  *          Louis Knapp (json output)
  */
-
+#include <iomanip>         // setprecision
 #include <iostream>        // To read files
 #include <fstream>         // To output files
 #include <sstream>
@@ -911,20 +911,22 @@ void OutputJSONFormatFile(string filename) {
 /*****************************************************************************/
 string OutputCIFData() {
     ostringstream stringStream;
-    stringStream << "data_functionalizedCrystal" << endl;
-    stringStream << "_audit_creation_method\t" << "'EQeq! by Chris Wilmer'" << endl;
-    stringStream << "_symmetry_space_group_name_H-M\t" << "'P1'" << endl;
-    stringStream << "_symmetry_Int_Tables_number\t" << "1" << endl;
-    stringStream << "_symmetry_cell_setting\t" << "triclinic" << endl;
+    stringStream << "data_crystal" << endl;
+    stringStream << "" << endl;
+    stringStream << "_cell_length_a "    << fixed << setprecision(5) << aLength << endl;
+    stringStream << "_cell_length_b "    << fixed << setprecision(5) << bLength << endl;
+    stringStream << "_cell_length_c "    << fixed << setprecision(5) << cLength << endl;
+    stringStream << "_cell_angle_alpha " << fixed << setprecision(5) << alphaAngle * (180 / PI) << endl;
+    stringStream << "_cell_angle_beta  " << fixed << setprecision(5) << betaAngle * (180 / PI) << endl;
+    stringStream << "_cell_angle_gamma " << fixed << setprecision(5) << gammaAngle * (180 / PI) << endl;
+    stringStream << "" << endl;
+    stringStream << "_symmetry_space_group_name_\t" << "'P 1'" << endl;
+    stringStream << "_symmetry_space_group_name_H-M\t" << "'P 1'" << endl;
+    stringStream << "" << endl;
     stringStream << "loop_" << endl;
     stringStream << "_symmetry_equiv_pos_as_xyz" << endl;
     stringStream << "  x,y,z" << endl;
-    stringStream << "_cell_length_a\t" << aLength << endl;
-    stringStream << "_cell_length_b\t" << bLength << endl;
-    stringStream << "_cell_length_c\t" << cLength << endl;
-    stringStream << "_cell_angle_alpha\t" << alphaAngle * (180 / PI) << endl;
-    stringStream << "_cell_angle_beta\t" << betaAngle * (180 / PI) << endl;
-    stringStream << "_cell_angle_gamma\t" << gammaAngle * (180 / PI) << endl;
+    stringStream << "" << endl;
     stringStream << "loop_" << endl;
     stringStream << "_atom_site_label" << endl;
     stringStream << "_atom_site_type_symbol" << endl;
@@ -951,11 +953,12 @@ string OutputCIFData() {
                    (aV[2]*bV[1]*cV[0] - aV[1]*bV[2]*cV[0] - aV[2]*bV[0]*cV[1] +
                    aV[0]*bV[2]*cV[1] + aV[1]*bV[0]*cV[2] - aV[0]*bV[1]*cV[2]);
 
-        stringStream<< "Mof_" << Symbol[i] << "\t" << Symbol[i] << "\t";
-        stringStream << a << "\t" << b << "\t" << c << "\t" << Q[i] << endl;
+        stringStream << Symbol[i] << "\t" << Symbol[i] << "\t";
+        stringStream << fixed << setprecision(5) << a << " "; 
+	stringStream << fixed << setprecision(5) << b << " ";
+        stringStream << fixed << setprecision(5) << c << " ";
+        stringStream << fixed << setprecision(5) << Q[i] << endl;
     }
-
-    stringStream << "_end" << endl;
     return stringStream.str();
 }
 /*****************************************************************************/
