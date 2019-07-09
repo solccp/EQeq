@@ -17,6 +17,8 @@
 #include <map>             // For string enumeration (C++ specific)
 #include <cmath>           // For basic math functions
 #include <cstdlib>
+#include <boost/algorithm/string.hpp>
+using namespace boost;
 using namespace std;
 
 #define TABLE_OF_ELEMENTS_SIZE 84
@@ -67,6 +69,7 @@ void LoadIonizationData(const char *filename);
 void LoadChargeCenters(const char *filename);
 void LoadCIFData(string data);
 void LoadCIFFile(string filename); // Reads in CIF files, periodicity can be switched off
+void LoadVASPFile(string filename);
 string OutputCIFData();
 void OutputCIFFormatFile(string filename);
 void OutputFile(string filename, string data);
@@ -114,7 +117,8 @@ double lambda = 1.2; // Coulomb scaling parameter
 float hI0 = -2.0; // Default value used in paper
 float hI1 = 13.598; // This is the empirically mesaured 1st ionization energy of hydrogen
 int chargePrecision = 3; // Number of digits to use for point charges
-int mR = 2;  int mK = 2;
+//int mR = 2;  int mK = 2;
+int mR = 6;  int mK = 6; //13x13x13
 int aVnum = mR; int bVnum = mR; int cVnum = mR; // Number of unit cells to consider in per. calc. ("real space")
 int hVnum = mK; int jVnum = mK; int kVnum = mK; // Number of unit cells to consider in per. calc. ("frequency space")
 string method = "ewald";
@@ -194,7 +198,12 @@ char *run(const char *data, const char *outputType, double _lambda, float _hI0,
     if (input.substr(input.length() - 4) == ".cif") {
         LoadCIFFile(input);
         inputFilename = input;
-    } else {
+    } 
+    else if (input.substr(input.length() - 5) == ".vasp") {
+        LoadVASPFile(input);
+        inputFilename = input;
+    }
+    else {
         LoadCIFData(input);
         inputFilename = "streamed";
     }
@@ -716,6 +725,136 @@ void LoadCIFFile(string filename) {
     }
     LoadCIFData(data);
 }
+
+void LoadVASPFile(string filename) {
+    // Two string index variables used for generating substrings from larger strings
+
+    ifstream fileInput(filename.c_str(),ios::in);
+    string data, tmp;
+
+    if(!fileInput) { // Error checking
+        printf("%s is not a valid filename\n\n", filename.c_str());
+        exit(1);
+    }
+
+    getline(fileInput, tmp);
+    double scaling;
+    double a11, a12, a13, a21, a22, a23, a31, a32, a33;
+    fileInput >> scaling;
+    
+    fileInput >> a11 >> a12 >> a13;
+    fileInput >> a21 >> a22 >> a23;
+    fileInput >> a31 >> a32 >> a33;
+
+    aV[0] = a11*scaling; aV[1] = a12*scaling; aV[2]*scaling = a13; 
+    bV[0] = a21*scaling; bV[1] = a22*scaling; bV[2]*scaling = a23; 
+    cV[0] = a31*scaling; cV[1] = a32*scaling; cV[2]*scaling = a33; 
+
+    if (useEwardSums == true) DetermineReciprocalLatticeVectors();
+
+    // Unitcell Volume
+    vector<double> crs;
+    crs = Cross(bV,cV);
+    unitCellVolume = fabs( aV[0]*crs[0] + aV[1]*crs[1] + aV[2]*crs[2] ); // Volum
+
+    getline(fileInput, tmp);
+    getline(fileInput, tmp);
+
+    typedef vector< string > split_vector_type;
+    split_vector_type Symbols; 
+    trim(tmp);
+    split( Symbols, tmp, is_any_of(" \t\n\r"), token_compress_on );
+
+    getline(fileInput, tmp);
+    trim(tmp);
+    split_vector_type nat_str;
+    split( nat_str, tmp, is_any_of(" \t\n\r"), token_compress_on );
+
+    vector< int > nats;
+    for(auto & str : nat_str)
+    {
+        int nat = atoi(str.c_str());
+        nats.push_back(nat);
+    }
+
+    bool cart = true;
+    getline(fileInput, tmp);
+    if (tmp[0] == 'd' || tmp[0] == 'D')
+    {
+        cart = false;
+    }
+
+
+    cerr << "==================================================" << endl;
+    cerr << "========= Atom types - X & J values used =========" << endl;
+    cerr << "==================================================" << endl;
+    for(int ci=0; ci<nats.size(); ++ci )
+    {
+        for(int cj=0; cj<nats[ci]; ++cj)
+        {
+            getline(fileInput, tmp);
+            trim(tmp);
+            split_vector_type coords;
+            split( coords, tmp, is_any_of(" \t\n\r"), token_compress_on );
+
+            Coordinates tempAtom;
+            string padding_symbol = "  ";
+            for(int i=0; i<Symbols[ci].size(); ++i)
+            {
+                padding_symbol[i] = Symbols[ci][i];
+            }
+            Symbol.push_back(padding_symbol);
+
+            Label.push_back(Symbols[ci]);
+            tempAtom.x = atof( coords[0].c_str() );
+            tempAtom.y = atof( coords[1].c_str() );
+            tempAtom.z = atof( coords[2].c_str() );
+
+            if (cart == false)
+            {
+                // Change from fractional to cartesian:
+                tempAtom.x = tempAtom.x * aV[0] + tempAtom.y * bV[0] + tempAtom.z * cV[0];
+                tempAtom.y = tempAtom.x * aV[1] + tempAtom.y * bV[1] + tempAtom.z * cV[1];
+                tempAtom.z = tempAtom.x * aV[2] + tempAtom.y * bV[2] + tempAtom.z * cV[2];
+            }
+
+            Pos.push_back(tempAtom);
+
+            int i = Symbol.size() - 1;
+            int Z = s_mapStringAtomLabels[Symbol[i]]; // Get Z number from label
+
+            if (Symbol[i] == "H ") {
+                X.push_back(0.5*(hI1 + hI0));
+                J.push_back(hI1 - hI0);
+            } else {
+                int cC = IonizationData[Z].chargeCenter;
+                X.push_back(0.5*(IonizationData[Z].ionizationPotential[cC+1] +
+                    IonizationData[Z].ionizationPotential[cC]));
+                J.push_back(IonizationData[Z].ionizationPotential[cC+1] -
+                    IonizationData[Z].ionizationPotential[cC]);
+                X[i] -= cC*(J[i]);
+            }
+
+            bool beenDone = false;
+            for (int j = 0; j < i; j++) {
+                if (Symbol[i] == Symbol[j]) beenDone = true;
+            }
+            if (beenDone == false) {
+                cerr << Symbol[i] << "\t";
+                cerr << "Z: " << Z+1 << "\t";
+                cerr << "Ch. Cent: " << IonizationData[Z].chargeCenter << "\t";
+                cerr << "X: " << X[i] << "\t";
+                cerr << "J: " << J[i] << "\t" << endl;
+            }
+        }
+        
+    }
+
+    numAtoms = Pos.size();
+    Q.resize(numAtoms, 0); // initialize charges to zero
+
+}
+
 /*****************************************************************************/
 void LoadCIFData(string data) {
     string cStr; // current string
@@ -818,6 +957,8 @@ void LoadCIFData(string data) {
             eInd = sInd + 1;
             tStr = cStr.substr(sInd, eInd - sInd + 1);
             Symbol.push_back(tStr);
+
+            cout << "'" << Label.back() << "'" << " " << "'" << Symbol.back() << "'" << endl;
 
             // Find first "x" coordinate
             sInd = cStr.find(".",sInd) - 2;
