@@ -746,9 +746,9 @@ void LoadVASPFile(string filename) {
     fileInput >> a21 >> a22 >> a23;
     fileInput >> a31 >> a32 >> a33;
 
-    aV[0] = a11*scaling; aV[1] = a12*scaling; aV[2]*scaling = a13; 
-    bV[0] = a21*scaling; bV[1] = a22*scaling; bV[2]*scaling = a23; 
-    cV[0] = a31*scaling; cV[1] = a32*scaling; cV[2]*scaling = a33; 
+    aV[0] = a11*scaling; aV[1] = a12*scaling; aV[2] = a13*scaling; 
+    bV[0] = a21*scaling; bV[1] = a22*scaling; bV[2] = a23*scaling; 
+    cV[0] = a31*scaling; cV[1] = a32*scaling; cV[2] = a33*scaling; 
 
     if (useEwardSums == true) DetermineReciprocalLatticeVectors();
 
