@@ -80,6 +80,8 @@ void OutputMOLFormatFile(string filename); // Outputs 'RASPA' MOL file
 string OutputCARData();
 void OutputJSONFormatFile(string filename); // Outputs list of partial charges
 string OutputJSONData();
+void OutputTextFormatFile(string filename); // Outputs list of partial charges
+string OutputTextData();
 void OutputCARFormatFile(string filename);
 void Qeq();
 void RoundCharges(int digits); // Make *slight* adjustments to the charges for nice round numbers
@@ -116,7 +118,7 @@ double eta = 50; // Ewald splitting parameter
 double lambda = 1.2; // Coulomb scaling parameter
 float hI0 = -2.0; // Default value used in paper
 float hI1 = 13.598; // This is the empirically mesaured 1st ionization energy of hydrogen
-int chargePrecision = 3; // Number of digits to use for point charges
+int chargePrecision = 5; // Number of digits to use for point charges
 //int mR = 2;  int mK = 2;
 int mR = 6;  int mK = 6; //13x13x13
 int aVnum = mR; int bVnum = mR; int cVnum = mR; // Number of unit cells to consider in per. calc. ("real space")
@@ -226,6 +228,7 @@ char *run(const char *data, const char *outputType, double _lambda, float _hI0,
         OutputPDBFormatFile(inputFilename + buffer + ".pdb");
         OutputCARFormatFile(inputFilename + buffer + ".car");
         OutputJSONFormatFile(inputFilename + buffer + ".json");
+        OutputTextFormatFile(inputFilename + buffer + ".txt");
         return 0;
     // These options allow output streaming of string data
     } else if (type.compare("cif") == 0) {
@@ -238,7 +241,10 @@ char *run(const char *data, const char *outputType, double _lambda, float _hI0,
         outString = OutputCARData();
     } else if (type.compare("json") == 0) {
         outString = OutputJSONData();
-    } else {
+    } else if (type.compare("txt") == 0) {
+        outString = OutputTextData();
+    }
+    else {
         cerr << "Output type \"" << outputType << "\" not supported!" << endl;
         exit(1);
         return 0;
@@ -750,6 +756,15 @@ void LoadVASPFile(string filename) {
     bV[0] = a21*scaling; bV[1] = a22*scaling; bV[2] = a23*scaling; 
     cV[0] = a31*scaling; cV[1] = a32*scaling; cV[2] = a33*scaling; 
 
+    aLength = sqrt(aV[0]*aV[0]+aV[1]*aV[1]+aV[2]*aV[2]);
+    bLength = sqrt(bV[0]*bV[0]+bV[1]*bV[1]+bV[2]*bV[2]);
+    cLength = sqrt(cV[0]*cV[0]+cV[1]*cV[1]+cV[2]*cV[2]);
+
+    gammaAngle = acos( (aV[0]*bV[0]+aV[1]*bV[1]+aV[2]*bV[2])/(aLength*bLength));
+    betaAngle  = acos( (aV[0]*cV[0]+aV[1]*cV[1]+aV[2]*cV[2])/(aLength*cLength));
+    alphaAngle = acos( (cV[0]*bV[0]+cV[1]*bV[1]+cV[2]*bV[2])/(cLength*bLength));
+
+
     if (useEwardSums == true) DetermineReciprocalLatticeVectors();
 
     // Unitcell Volume
@@ -1034,6 +1049,10 @@ void OutputCIFFormatFile(string filename) {
     OutputFile(filename, OutputCIFData());
 }
 /*****************************************************************************/
+void OutputTextFormatFile(string filename) {
+    OutputFile(filename, OutputTextData());
+}
+/*****************************************************************************/
 void OutputPDBFormatFile(string filename) {
     OutputFile(filename, OutputPDBData());
 }
@@ -1133,6 +1152,14 @@ string OutputJSONData() {
     return stringStream.str();
 }
 /*****************************************************************************/
+string OutputTextData() {
+    ostringstream stringStream;
+    for (int i = 0; i < numAtoms; i++) {
+        stringStream << Q[i] << endl;
+    }
+    return stringStream.str();
+}
+/*****************************************************************************/
 string OutputMOLData() {
     ostringstream stringStream;
     char buf[200];
@@ -1205,6 +1232,7 @@ void Qeq() {
     }
 
     // Fill in 2nd to Nth rows of A
+    #pragma omp parallel for
     for (int i = 1; i < numAtoms; i++) {
         cerr << "." << flush;
         for (int j = 0; j < numAtoms; j++) {
